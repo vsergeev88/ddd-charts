@@ -14,6 +14,8 @@ Physically-based materials (metal, glass), smooth entrance and hover animations,
 - 🌳 Tree-shakable ESM + CJS builds, full TypeScript types
 - 🆓 MIT licensed
 
+**[Live Demo](https://ddd-charts.netlify.app/)**
+
 ## Installation
 
 ```bash
