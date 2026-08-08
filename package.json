@@ -13,11 +13,22 @@
     "visualization",
     "webgl"
   ],
+  "author": "Valentin Sergeev",
   "license": "MIT",
+  "homepage": "https://github.com/vsergeev88/ddd-charts#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vsergeev88/ddd-charts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/vsergeev88/ddd-charts/issues"
+  },
   "type": "module",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "LICENSE",
+    "README.md"
   ],
   "main": "./dist/ddd-charts.cjs",
   "module": "./dist/ddd-charts.js",
@@ -29,12 +40,19 @@
       "require": "./dist/ddd-charts.cjs"
     }
   },
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "peerDependencies": {
     "@react-three/fiber": ">=8.0.0",
