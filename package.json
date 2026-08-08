@@ -1,6 +1,6 @@
 {
   "name": "ddd-charts",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Highly customizable 3D charts for React — pie and bar charts with physically-based materials, glass effects and smooth animations. Powered by three.js and @react-three/fiber.",
   "keywords": [
     "react",
