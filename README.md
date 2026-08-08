@@ -2,7 +2,7 @@
 
 Highly customizable **3D charts for React**, built on top of [three.js](https://threejs.org/) and [@react-three/fiber](https://github.com/pmndrs/react-three-fiber).
 
-Physically-based materials (metal, glass), smooth entrance and hover animations, auto-rotation, orbit controls — all configurable from props, with great-looking defaults out of the box.
+Physically-based materials (metal, glass) on each datum, smooth entrance and hover animations, auto-rotation, orbit controls — with great-looking defaults out of the box.
 
 - 🥧 `PieChart3D` — pie / donut charts with extruded, beveled slices
 - 📊 `BarChart3D` — rounded 3D bars
@@ -51,57 +51,34 @@ The viewer fills its parent element, so give the wrapper an explicit size.
 
 ## Materials
 
-Every chart accepts a `materials` prop that can be:
-
-1. **A single config** applied to all items:
-
-```tsx
-<PieChart3D
-  data={data}
-  materials={{ metallic: 0.85, roughness: 0.2, clearcoat: 1 }}
-/>
-```
-
-2. **Glass** — enable `glassEffect` and optionally tune `transmission`, `thickness` and `ior`:
-
-```tsx
-<PieChart3D
-  data={data}
-  innerRadius={0.9}
-  materials={{ glassEffect: true, thickness: 0.8, ior: 1.45 }}
-/>
-```
-
-3. **An array** — item `i` gets `materials[i % materials.length]`:
-
-```tsx
-<BarChart3D
-  data={data}
-  materials={[{ metallic: 0.9 }, { glassEffect: true }]}
-/>
-```
-
-4. **A resolver function** for fully data-driven styling:
-
-```tsx
-<BarChart3D
-  data={data}
-  materials={(datum, index) =>
-    datum.value > 50
-      ? { glassEffect: true, color: '#7dd3fc' }
-      : { metallic: 0.8, roughness: 0.3 }
-  }
-/>
-```
-
-5. **Per-datum overrides** — `color` and `material` on a data item always win:
+Appearance is configured **on each data item** via optional `color` and `material` fields — not through a separate chart prop:
 
 ```tsx
 const data = [
-  { label: 'A', value: 10, color: '#f472b6' },
-  { label: 'B', value: 20, material: { glassEffect: true } }
+  {
+    label: 'Design',
+    value: 28,
+    color: '#38bdf8',
+    material: { metallic: 0.85, roughness: 0.25, clearcoat: 1 }
+  },
+  {
+    label: 'Development',
+    value: 42,
+    color: '#fbbf24',
+    material: { metallic: 0.7, roughness: 0.3, clearcoat: 0.8 }
+  },
+  {
+    label: 'QA',
+    value: 14,
+    color: '#f87171',
+    material: { glassEffect: true, thickness: 0.8, ior: 1.45 }
+  }
 ]
+
+<PieChart3D data={data} innerRadius={0.9} />
 ```
+
+Items without `color` fall back to the built-in palette. Omit `material` to keep the default PBR look (`metallic: 0.1`, `roughness: 0.35`).
 
 ### Material options
 
@@ -224,7 +201,7 @@ For pie charts `fraction` is the slice share; for bar charts it is the bar's sha
 
 ## Legend
 
-`ChartLegend` is a plain HTML component — place it anywhere near the chart. Pass the same `data` (and `materials`, if you use them) so swatch colors match the chart:
+`ChartLegend` is a plain HTML component — place it anywhere near the chart. Pass the same `data` so swatch colors match (`color` / `material` on each item):
 
 ```tsx
 import { useState } from 'react'
@@ -259,7 +236,6 @@ Hovering a legend item highlights the matching segment (hover effect + tooltip) 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
 | `items` | `ChartDatum[]` | — | same data array as the chart |
-| `materials` | `MaterialsProp` | — | resolve swatch colors like the chart does |
 | `direction` | `'row' \| 'column'` | `'row'` | layout |
 | `showValues` | `boolean` | `true` | show values next to labels |
 | `activeIndex` | `number \| null` | `null` | highlighted item, dims the rest |
