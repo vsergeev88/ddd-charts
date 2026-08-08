@@ -1,14 +1,29 @@
-import { useState, type CSSProperties, type FormEvent } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
 import {
   BarChart3D,
   ChartLegend,
   ChartViewer,
   PieChart3D,
   type ChartDatum,
+  type EnvironmentPreset,
   type MaterialConfig
 } from 'ddd-charts'
 
 type TabId = 'pie' | 'bar'
+
+const ENVIRONMENT_PRESETS: EnvironmentPreset[] = [
+  'apartment',
+  'city',
+  'dawn',
+  'forest',
+  'lobby',
+  'night',
+  'park',
+  'studio',
+  'sunset',
+  'warehouse'
+]
 
 const initialPieData: ChartDatum[] = [
   {
@@ -135,7 +150,8 @@ const tableCardStyle: CSSProperties = {
   border: '1px solid rgba(255,255,255,0.08)',
   background: 'rgba(255,255,255,0.03)',
   padding: 20,
-  overflow: 'auto'
+  overflow: 'auto',
+  height: '520px',
 }
 
 const headerStyle: CSSProperties = {
@@ -144,7 +160,175 @@ const headerStyle: CSSProperties = {
   fontWeight: 600,
   letterSpacing: 0.3,
   color: '#c3c8e6',
-  borderBottom: '1px solid rgba(255,255,255,0.06)'
+  borderBottom: '1px solid rgba(255,255,255,0.06)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 12
+}
+
+const selectStyle: CSSProperties = {
+  padding: '6px 10px',
+  borderRadius: 8,
+  border: '1px solid rgba(255,255,255,0.14)',
+  background: 'rgba(255,255,255,0.06)',
+  color: '#e7e9f4',
+  fontSize: 13,
+  fontWeight: 500,
+  cursor: 'pointer',
+  fontFamily: 'inherit'
+}
+
+type DarkSelectOption = { value: string; label: string }
+
+function DarkSelect({
+  value,
+  options,
+  onChange,
+  style,
+  'aria-label': ariaLabel
+}: {
+  value: string
+  options: DarkSelectOption[]
+  onChange: (value: string) => void
+  style?: CSSProperties
+  'aria-label'?: string
+}) {
+  const [open, setOpen] = useState(false)
+  const [hovered, setHovered] = useState<string | null>(null)
+  const [menuRect, setMenuRect] = useState<{ top: number; left: number; width: number } | null>(
+    null
+  )
+  const rootRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLUListElement>(null)
+  const selected = options.find((option) => option.value === value)
+
+  useLayoutEffect(() => {
+    if (!open || !rootRef.current) {
+      setMenuRect(null)
+      return
+    }
+    const update = () => {
+      const rect = rootRef.current?.getBoundingClientRect()
+      if (!rect) return
+      setMenuRect({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: Math.max(rect.width, 160)
+      })
+    }
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target)) return
+      setOpen(false)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  return (
+    <div ref={rootRef} style={{ position: 'relative', display: 'inline-block', ...style }}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        onClick={() => setOpen((current) => !current)}
+        style={{
+          ...selectStyle,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 8,
+          textAlign: 'left'
+        }}
+      >
+        <span>{selected?.label ?? value}</span>
+        <span style={{ opacity: 0.65, fontSize: 10, lineHeight: 1 }}>▼</span>
+      </button>
+      {open && menuRect
+        ? createPortal(
+            <ul
+              ref={menuRef}
+              role="listbox"
+              style={{
+                position: 'fixed',
+                zIndex: 1000,
+                top: menuRect.top,
+                left: menuRect.left,
+                width: menuRect.width,
+                margin: 0,
+                padding: 4,
+                listStyle: 'none',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.14)',
+                background: '#15182b',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+                maxHeight: 240,
+                overflow: 'auto'
+              }}
+            >
+              {options.map((option) => {
+                const active = option.value === value
+                const isHovered = hovered === option.value
+                return (
+                  <li key={option.value} role="option" aria-selected={active}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(option.value)
+                        setOpen(false)
+                      }}
+                      onMouseEnter={() => setHovered(option.value)}
+                      onMouseLeave={() => setHovered(null)}
+                      style={{
+                        width: '100%',
+                        padding: '8px 10px',
+                        border: 'none',
+                        borderRadius: 6,
+                        background: active
+                          ? '#4f46e5'
+                          : isHovered
+                            ? 'rgba(255,255,255,0.08)'
+                            : 'transparent',
+                        color: '#e7e9f4',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        fontFamily: 'inherit',
+                        textAlign: 'left',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {option.label}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>,
+            document.body
+          )
+        : null}
+    </div>
+  )
 }
 
 const tableStyle: CSSProperties = {
@@ -182,26 +366,6 @@ const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
   background: '#4f46e5',
   border: '1px solid #6366f1'
-}
-
-const overlayStyle: CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  background: 'rgba(5, 7, 18, 0.72)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  zIndex: 50,
-  padding: 24
-}
-
-const modalStyle: CSSProperties = {
-  width: 'min(480px, 100%)',
-  borderRadius: 16,
-  border: '1px solid rgba(255,255,255,0.12)',
-  background: '#15182b',
-  boxShadow: '0 24px 80px rgba(0,0,0,0.45)',
-  padding: 24
 }
 
 const fieldStyle: CSSProperties = {
@@ -265,7 +429,174 @@ interface MaterialDraft {
   flatShading: boolean
 }
 
-function toDraft(datum: ChartDatum): MaterialDraft {
+interface MaterialPreset {
+  id: string
+  label: string
+  color?: string
+  material: MaterialConfig
+}
+
+const MATERIAL_PRESETS: MaterialPreset[] = [
+  {
+    id: 'stainless-steel',
+    label: 'Stainless steel',
+    color: '#c5cad3',
+    material: {
+      metallic: 1,
+      roughness: 0.22,
+      clearcoat: 0.25,
+      clearcoatRoughness: 0.12,
+      envMapIntensity: 1.25
+    }
+  },
+  {
+    id: 'plastic',
+    label: 'Plastic',
+    material: {
+      metallic: 0,
+      roughness: 0.38,
+      clearcoat: 0.55,
+      clearcoatRoughness: 0.22,
+      envMapIntensity: 0.9
+    }
+  },
+  {
+    id: 'bottle-glass',
+    label: 'Bottle glass',
+    color: '#2f8f6b',
+    material: {
+      glassEffect: true,
+      roughness: 0.06,
+      thickness: 1.1,
+      transmission: 1,
+      ior: 1.52,
+      envMapIntensity: 1.6
+    }
+  },
+  {
+    id: 'chrome',
+    label: 'Chrome',
+    color: '#e8eaf0',
+    material: {
+      metallic: 1,
+      roughness: 0.04,
+      envMapIntensity: 1.8
+    }
+  },
+  {
+    id: 'brushed-aluminum',
+    label: 'Brushed aluminum',
+    color: '#b8bec8',
+    material: {
+      metallic: 1,
+      roughness: 0.42,
+      envMapIntensity: 1.1
+    }
+  },
+  {
+    id: 'gold',
+    label: 'Gold',
+    color: '#d4a017',
+    material: {
+      metallic: 1,
+      roughness: 0.28,
+      clearcoat: 0.35,
+      clearcoatRoughness: 0.18,
+      envMapIntensity: 1.35
+    }
+  },
+  {
+    id: 'copper',
+    label: 'Copper',
+    color: '#b87333',
+    material: {
+      metallic: 1,
+      roughness: 0.32,
+      envMapIntensity: 1.2
+    }
+  },
+  {
+    id: 'rubber',
+    label: 'Rubber',
+    color: '#2a2a2e',
+    material: {
+      metallic: 0,
+      roughness: 0.92,
+      envMapIntensity: 0.4
+    }
+  },
+  {
+    id: 'ceramic',
+    label: 'Ceramic',
+    color: '#f2efe8',
+    material: {
+      metallic: 0,
+      roughness: 0.28,
+      clearcoat: 0.85,
+      clearcoatRoughness: 0.12,
+      envMapIntensity: 1
+    }
+  },
+  {
+    id: 'matte-paint',
+    label: 'Matte paint',
+    material: {
+      metallic: 0,
+      roughness: 0.85,
+      envMapIntensity: 0.55
+    }
+  },
+  {
+    id: 'car-paint',
+    label: 'Car paint',
+    material: {
+      metallic: 0.15,
+      roughness: 0.18,
+      clearcoat: 1,
+      clearcoatRoughness: 0.06,
+      envMapIntensity: 1.4
+    }
+  },
+  {
+    id: 'frosted-glass',
+    label: 'Frosted glass',
+    material: {
+      glassEffect: true,
+      roughness: 0.45,
+      thickness: 0.7,
+      transmission: 0.9,
+      ior: 1.45,
+      envMapIntensity: 1.1
+    }
+  },
+  {
+    id: 'crystal',
+    label: 'Crystal',
+    color: '#dcefff',
+    material: {
+      glassEffect: true,
+      roughness: 0.02,
+      thickness: 1.8,
+      transmission: 1,
+      ior: 2.0,
+      envMapIntensity: 2
+    }
+  },
+  {
+    id: 'neon',
+    label: 'Neon',
+    color: '#22d3ee',
+    material: {
+      metallic: 0.2,
+      roughness: 0.25,
+      emissive: '#22d3ee',
+      emissiveIntensity: 2.2,
+      envMapIntensity: 0.8
+    }
+  }
+]
+
+function toDraft(datum: Pick<ChartDatum, 'color' | 'material'>): MaterialDraft {
   const m = datum.material ?? {}
   return {
     color: datum.color ?? '#6366f1',
@@ -283,6 +614,13 @@ function toDraft(datum: ChartDatum): MaterialDraft {
     envMapIntensity: m.envMapIntensity?.toString() ?? '',
     flatShading: Boolean(m.flatShading)
   }
+}
+
+function draftFromPreset(preset: MaterialPreset, fallbackColor: string): MaterialDraft {
+  return toDraft({
+    color: preset.color ?? fallbackColor,
+    material: preset.material
+  })
 }
 
 function fromDraft(draft: MaterialDraft): { color: string; material: MaterialConfig } {
@@ -308,6 +646,28 @@ function fromDraft(draft: MaterialDraft): { color: string; material: MaterialCon
       Object.entries(material).filter(([, v]) => v !== undefined)
     ) as MaterialConfig
   }
+}
+
+function materialsEqual(a: MaterialConfig, b: MaterialConfig): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof MaterialConfig>
+  for (const key of keys) {
+    if (a[key] !== b[key]) return false
+  }
+  return true
+}
+
+function resolvePresetId(datum: Pick<ChartDatum, 'color' | 'material'>): string {
+  const current = fromDraft(toDraft(datum))
+  const match = MATERIAL_PRESETS.find((preset) => {
+    const presetDraft = draftFromPreset(preset, current.color)
+    const next = fromDraft(presetDraft)
+    if (!materialsEqual(current.material, next.material)) return false
+    if (preset.color && preset.color.toLowerCase() !== current.color.toLowerCase()) {
+      return false
+    }
+    return true
+  })
+  return match?.id ?? 'custom'
 }
 
 const rangeStyle: CSSProperties = {
@@ -363,166 +723,201 @@ function SliderNumberField({
   )
 }
 
-interface MaterialModalProps {
+interface MaterialEditorProps {
   datum: ChartDatum
+  onChange: (next: { color: string; material: MaterialConfig }) => void
   onCancel: () => void
-  onOk: (next: { color: string; material: MaterialConfig }) => void
+  onOk: () => void
 }
 
-function MaterialModal({ datum, onCancel, onOk }: MaterialModalProps) {
+function MaterialEditor({ datum, onChange, onCancel, onOk }: MaterialEditorProps) {
   const [draft, setDraft] = useState(() => toDraft(datum))
+  const [presetId, setPresetId] = useState(() => resolvePresetId(datum))
 
-  const update = <K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) => {
-    setDraft((prev) => ({ ...prev, [key]: value }))
+  const applyDraft = (next: MaterialDraft) => {
+    setDraft(next)
+    onChange(fromDraft(next))
   }
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    onOk(fromDraft(draft))
+  const update = <K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) => {
+    setPresetId('custom')
+    setDraft((prev) => {
+      const next = { ...prev, [key]: value }
+      onChange(fromDraft(next))
+      return next
+    })
+  }
+
+  const applyPreset = (id: string) => {
+    setPresetId(id)
+    if (id === 'custom') return
+    const preset = MATERIAL_PRESETS.find((item) => item.id === id)
+    if (!preset) return
+    applyDraft(draftFromPreset(preset, draft.color))
   }
 
   return (
-    <div style={overlayStyle} onClick={onCancel}>
-      <form
-        style={{ ...modalStyle, maxHeight: '90vh', overflow: 'auto' }}
-        onClick={(e) => e.stopPropagation()}
-        onSubmit={handleSubmit}
+    <div style={tableCardStyle}>
+      <button
+        type="button"
+        style={{ ...buttonStyle, marginBottom: 14 }}
+        onClick={onOk}
       >
-        <h2 style={{ fontSize: 18, marginBottom: 6 }}>Material — {datum.label ?? datum.id}</h2>
-        <p style={{ color: '#8b91b5', fontSize: 13, marginBottom: 18 }}>
-          Adjust color and PBR / glass options for this datum.
-        </p>
+        ← Back to table
+      </button>
+      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: '#c3c8e6' }}>
+        Material — {datum.label ?? datum.id}
+      </div>
+      <p style={{ color: '#8b91b5', fontSize: 13, marginBottom: 18 }}>
+        Changes apply to the chart immediately. Cancel restores the previous values.
+      </p>
 
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Preset</label>
+        <DarkSelect
+          aria-label="Material preset"
+          style={{ width: '100%', display: 'block' }}
+          value={presetId}
+          onChange={applyPreset}
+          options={[
+            { value: 'custom', label: 'Custom' },
+            ...MATERIAL_PRESETS.map((preset) => ({
+              value: preset.id,
+              label: preset.label
+            }))
+          ]}
+        />
+      </div>
+
+      <div style={fieldStyle}>
+        <label style={labelStyle}>Color</label>
+        <input
+          type="color"
+          value={draft.color}
+          onChange={(e) => update('color', e.target.value)}
+          style={{ ...inputStyle, padding: 4, height: 40 }}
+        />
+      </div>
+
+      <label style={{ ...fieldStyle, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <input
+          type="checkbox"
+          checked={draft.glassEffect}
+          onChange={(e) => update('glassEffect', e.target.checked)}
+        />
+        <span style={{ ...labelStyle, color: '#c3c8e6' }}>glassEffect</span>
+      </label>
+
+      <div style={gridStyle}>
+        <SliderNumberField
+          label="metallic"
+          value={draft.metallic}
+          min={0}
+          max={1}
+          onChange={(v) => update('metallic', v)}
+        />
+        <SliderNumberField
+          label="roughness"
+          value={draft.roughness}
+          min={0}
+          max={1}
+          onChange={(v) => update('roughness', v)}
+        />
+        <SliderNumberField
+          label="clearcoat"
+          value={draft.clearcoat}
+          min={0}
+          max={1}
+          onChange={(v) => update('clearcoat', v)}
+        />
+        <SliderNumberField
+          label="clearcoatRoughness"
+          value={draft.clearcoatRoughness}
+          min={0}
+          max={1}
+          onChange={(v) => update('clearcoatRoughness', v)}
+        />
+        <SliderNumberField
+          label="thickness"
+          value={draft.thickness}
+          min={0}
+          max={5}
+          onChange={(v) => update('thickness', v)}
+        />
+        <SliderNumberField
+          label="transmission"
+          value={draft.transmission}
+          min={0}
+          max={1}
+          onChange={(v) => update('transmission', v)}
+        />
+        <SliderNumberField
+          label="ior"
+          value={draft.ior}
+          min={1}
+          max={2.5}
+          fallback={1.5}
+          onChange={(v) => update('ior', v)}
+        />
+        <SliderNumberField
+          label="opacity"
+          value={draft.opacity}
+          min={0}
+          max={1}
+          fallback={1}
+          onChange={(v) => update('opacity', v)}
+        />
         <div style={fieldStyle}>
-          <label style={labelStyle}>Color</label>
-          <input
-            type="color"
-            value={draft.color}
-            onChange={(e) => update('color', e.target.value)}
-            style={{ ...inputStyle, padding: 4, height: 40 }}
-          />
+          <label style={labelStyle}>emissive</label>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <input
+              type="color"
+              value={/^#[0-9a-fA-F]{6}$/.test(draft.emissive) ? draft.emissive : '#000000'}
+              onChange={(e) => update('emissive', e.target.value)}
+              style={{ ...inputStyle, padding: 4, height: 40, width: 56, flexShrink: 0 }}
+            />
+            <input
+              style={{ ...inputStyle, flex: 1 }}
+              type="text"
+              placeholder="#000000"
+              value={draft.emissive}
+              onChange={(e) => update('emissive', e.target.value)}
+            />
+          </div>
         </div>
-
+        <SliderNumberField
+          label="emissiveIntensity"
+          value={draft.emissiveIntensity}
+          min={0}
+          max={5}
+          onChange={(v) => update('emissiveIntensity', v)}
+        />
+        <SliderNumberField
+          label="envMapIntensity"
+          value={draft.envMapIntensity}
+          min={0}
+          max={5}
+          fallback={1}
+          onChange={(v) => update('envMapIntensity', v)}
+        />
         <label style={{ ...fieldStyle, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
           <input
             type="checkbox"
-            checked={draft.glassEffect}
-            onChange={(e) => update('glassEffect', e.target.checked)}
+            checked={draft.flatShading}
+            onChange={(e) => update('flatShading', e.target.checked)}
           />
-          <span style={{ ...labelStyle, color: '#c3c8e6' }}>glassEffect</span>
+          <span style={{ ...labelStyle, color: '#c3c8e6' }}>flatShading</span>
         </label>
+      </div>
 
-        <div style={gridStyle}>
-          <SliderNumberField
-            label="metallic"
-            value={draft.metallic}
-            min={0}
-            max={1}
-            onChange={(v) => update('metallic', v)}
-          />
-          <SliderNumberField
-            label="roughness"
-            value={draft.roughness}
-            min={0}
-            max={1}
-            onChange={(v) => update('roughness', v)}
-          />
-          <SliderNumberField
-            label="clearcoat"
-            value={draft.clearcoat}
-            min={0}
-            max={1}
-            onChange={(v) => update('clearcoat', v)}
-          />
-          <SliderNumberField
-            label="clearcoatRoughness"
-            value={draft.clearcoatRoughness}
-            min={0}
-            max={1}
-            onChange={(v) => update('clearcoatRoughness', v)}
-          />
-          <SliderNumberField
-            label="thickness"
-            value={draft.thickness}
-            min={0}
-            max={5}
-            onChange={(v) => update('thickness', v)}
-          />
-          <SliderNumberField
-            label="transmission"
-            value={draft.transmission}
-            min={0}
-            max={1}
-            onChange={(v) => update('transmission', v)}
-          />
-          <SliderNumberField
-            label="ior"
-            value={draft.ior}
-            min={1}
-            max={2.5}
-            fallback={1.5}
-            onChange={(v) => update('ior', v)}
-          />
-          <SliderNumberField
-            label="opacity"
-            value={draft.opacity}
-            min={0}
-            max={1}
-            fallback={1}
-            onChange={(v) => update('opacity', v)}
-          />
-          <div style={fieldStyle}>
-            <label style={labelStyle}>emissive</label>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input
-                type="color"
-                value={/^#[0-9a-fA-F]{6}$/.test(draft.emissive) ? draft.emissive : '#000000'}
-                onChange={(e) => update('emissive', e.target.value)}
-                style={{ ...inputStyle, padding: 4, height: 40, width: 56, flexShrink: 0 }}
-              />
-              <input
-                style={{ ...inputStyle, flex: 1 }}
-                type="text"
-                placeholder="#000000"
-                value={draft.emissive}
-                onChange={(e) => update('emissive', e.target.value)}
-              />
-            </div>
-          </div>
-          <SliderNumberField
-            label="emissiveIntensity"
-            value={draft.emissiveIntensity}
-            min={0}
-            max={5}
-            onChange={(v) => update('emissiveIntensity', v)}
-          />
-          <SliderNumberField
-            label="envMapIntensity"
-            value={draft.envMapIntensity}
-            min={0}
-            max={5}
-            fallback={1}
-            onChange={(v) => update('envMapIntensity', v)}
-          />
-          <label style={{ ...fieldStyle, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            <input
-              type="checkbox"
-              checked={draft.flatShading}
-              onChange={(e) => update('flatShading', e.target.checked)}
-            />
-            <span style={{ ...labelStyle, color: '#c3c8e6' }}>flatShading</span>
-          </label>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-          <button type="button" style={buttonStyle} onClick={onCancel}>
-            Cancel
-          </button>
-          <button type="submit" style={primaryButtonStyle}>
-            Ok
-          </button>
-        </div>
-      </form>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
+        <button type="button" style={buttonStyle} onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="button" style={primaryButtonStyle} onClick={onOk}>
+          Ok
+        </button>
+      </div>
     </div>
   )
 }
@@ -592,8 +987,16 @@ function DataTable({ data, activeIndex, onEdit, onRowOver, onRowOut }: DataTable
   )
 }
 
+function cloneDatum(datum: ChartDatum): ChartDatum {
+  return {
+    ...datum,
+    material: datum.material ? { ...datum.material } : undefined
+  }
+}
+
 export function App() {
   const [tab, setTab] = useState<TabId>('pie')
+  const [environment, setEnvironment] = useState<EnvironmentPreset>('sunset')
   const [autoRotate, setAutoRotate] = useState(true)
   const [selected, setSelected] = useState<string>('—')
   const [pieData, setPieData] = useState(initialPieData)
@@ -601,6 +1004,7 @@ export function App() {
   const [pieActive, setPieActive] = useState<number | null>(null)
   const [barActive, setBarActive] = useState<number | null>(null)
   const [editIndex, setEditIndex] = useState<number | null>(null)
+  const [editSnapshot, setEditSnapshot] = useState<ChartDatum | null>(null)
 
   const data = tab === 'pie' ? pieData : barData
   const activeIndex = tab === 'pie' ? pieActive : barActive
@@ -611,15 +1015,52 @@ export function App() {
     else setBarActive(index)
   }
 
-  const applyMaterial = (next: { color: string; material: MaterialConfig }) => {
-    if (editIndex == null) return
+  const updateDatumAt = (
+    index: number,
+    next: Partial<Pick<ChartDatum, 'color' | 'material'>>
+  ) => {
     const updater = (items: ChartDatum[]) =>
-      items.map((item, i) =>
-        i === editIndex ? { ...item, color: next.color, material: next.material } : item
-      )
+      items.map((item, i) => (i === index ? { ...item, ...next } : item))
     if (tab === 'pie') setPieData(updater)
     else setBarData(updater)
+  }
+
+  const startEdit = (index: number) => {
+    if (editIndex === index) return
+    setEditSnapshot(cloneDatum(data[index]))
+    setEditIndex(index)
+  }
+
+  const handleItemClick = (datum: ChartDatum, index: number) => {
+    setSelected(`${datum.label} (${datum.value})`)
+    if (editIndex != null) startEdit(index)
+  }
+
+  const closeEdit = () => {
     setEditIndex(null)
+    setEditSnapshot(null)
+  }
+
+  const cancelEdit = () => {
+    if (editIndex != null && editSnapshot) {
+      updateDatumAt(editIndex, {
+        color: editSnapshot.color,
+        material: editSnapshot.material
+      })
+    }
+    closeEdit()
+  }
+
+  const switchTab = (next: TabId) => {
+    if (next === tab) return
+    if (editIndex != null && editSnapshot) {
+      updateDatumAt(editIndex, {
+        color: editSnapshot.color,
+        material: editSnapshot.material
+      })
+    }
+    closeEdit()
+    setTab(next)
   }
 
   return (
@@ -632,34 +1073,49 @@ export function App() {
 
       <div style={{ display: 'flex', gap: 20, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={tabBarStyle}>
-          <button type="button" style={tabStyle(tab === 'pie')} onClick={() => setTab('pie')}>
+          <button type="button" style={tabStyle(tab === 'pie')} onClick={() => switchTab('pie')}>
             PieChart3D
           </button>
-          <button type="button" style={tabStyle(tab === 'bar')} onClick={() => setTab('bar')}>
+          <button type="button" style={tabStyle(tab === 'bar')} onClick={() => switchTab('bar')}>
             BarChart3D
           </button>
         </div>
-        <label style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}>
-          <input
-            type="checkbox"
-            checked={autoRotate}
-            onChange={(e) => setAutoRotate(e.target.checked)}
-          />
-          Auto-rotate
-        </label>
       </div>
 
       <div style={panelStyle}>
         <div style={chartCardStyle}>
           <div style={headerStyle}>
-            {tab === 'pie' ? 'PieChart3D — donut' : 'BarChart3D — rounded bars'}
+            <span>
+              {tab === 'pie' ? 'PieChart3D — donut' : 'BarChart3D — rounded bars'}
+            </span>
+            <label style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={autoRotate}
+                onChange={(e) => setAutoRotate(e.target.checked)}
+              />
+              Auto-rotate
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
+              <span style={{ fontSize: 12, color: '#8b91b5' }}>Environment</span>
+              <DarkSelect
+                aria-label="Environment"
+                value={environment}
+                onChange={(next) => setEnvironment(next as EnvironmentPreset)}
+                options={ENVIRONMENT_PRESETS.map((preset) => ({
+                  value: preset,
+                  label: preset
+                }))}
+                style={{ width: 120 }}
+              />
+            </label>
           </div>
           <div style={{ flex: 1 }}>
             {tab === 'pie' ? (
               <ChartViewer
                 camera={{ position: [4.5, 4, 6], fov: 42 }}
                 autoRotate={autoRotate ? { speed: 0.12 } : false}
-                environment="city"
+                environment={environment}
               >
                 <PieChart3D
                   data={pieData}
@@ -667,7 +1123,7 @@ export function App() {
                   outerRadius={2.1}
                   height={0.7}
                   highlightedIndex={pieActive}
-                  onItemClick={(d) => setSelected(`${d.label} (${d.value})`)}
+                  onItemClick={handleItemClick}
                   onItemPointerOver={(_, i) => setPieActive(i)}
                   onItemPointerOut={() => setPieActive(null)}
                 />
@@ -676,7 +1132,7 @@ export function App() {
               <ChartViewer
                 camera={{ position: [6, 5, 9], fov: 40, target: [0, 1.2, 0] }}
                 autoRotate={autoRotate ? { speed: 0.25 } : false}
-                environment="sunset"
+                environment={environment}
               >
                 <BarChart3D
                   data={barData}
@@ -684,7 +1140,7 @@ export function App() {
                   hover={{ scale: 1.1, emissiveIntensity: 0.35 }}
                   tooltip={{ showPercent: false }}
                   highlightedIndex={barActive}
-                  onItemClick={(d) => setSelected(`${d.label} (${d.value})`)}
+                  onItemClick={handleItemClick}
                   onItemPointerOver={(_, i) => setBarActive(i)}
                   onItemPointerOut={() => setBarActive(null)}
                 />
@@ -694,29 +1150,31 @@ export function App() {
           <ChartLegend
             items={data}
             activeIndex={activeIndex}
+            onItemClick={handleItemClick}
             onItemOver={(_, i) => setActive(i)}
             onItemOut={() => setActive(null)}
             style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}
           />
         </div>
 
-        <DataTable
-          data={data}
-          activeIndex={activeIndex}
-          onEdit={setEditIndex}
-          onRowOver={setActive}
-          onRowOut={() => setActive(null)}
-        />
+        {editingDatum && editIndex != null && editSnapshot ? (
+          <MaterialEditor
+            key={`${tab}-${editIndex}`}
+            datum={editSnapshot}
+            onChange={(next) => updateDatumAt(editIndex, next)}
+            onCancel={cancelEdit}
+            onOk={closeEdit}
+          />
+        ) : (
+          <DataTable
+            data={data}
+            activeIndex={activeIndex}
+            onEdit={startEdit}
+            onRowOver={setActive}
+            onRowOut={() => setActive(null)}
+          />
+        )}
       </div>
-
-      {editingDatum && editIndex != null && (
-        <MaterialModal
-          key={`${tab}-${editIndex}`}
-          datum={editingDatum}
-          onCancel={() => setEditIndex(null)}
-          onOk={applyMaterial}
-        />
-      )}
     </div>
   )
 }
