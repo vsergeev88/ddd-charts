@@ -1354,50 +1354,36 @@ export function App() {
       </section>
 
       <main style={{ ...contentStyle, paddingTop: 96, paddingBottom: 96 }} className="panel-animate">
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 16,
-            marginBottom: 24
-          }}
-        >
-          <div>
-            <h2
-              style={{
-                fontSize: 24,
-                fontWeight: 500,
-                lineHeight: 1.6,
-                letterSpacing: 0.2,
-                color: colors.ink,
-                marginBottom: 4
-              }}
-            >
-              Playground
-            </h2>
-            <p style={{ fontSize: 14, lineHeight: 1.6, color: colors.mute }}>
-              Click a segment or a bar. Selected:{' '}
-              <span style={{ color: colors.onDark, fontWeight: 500 }}>{selected}</span>
-            </p>
-          </div>
-          <div style={tabBarStyle}>
-            <button type="button" style={tabStyle(tab === 'pie')} onClick={() => switchTab('pie')}>
-              PieChart3D
-            </button>
-            <button type="button" style={tabStyle(tab === 'bar')} onClick={() => switchTab('bar')}>
-              BarChart3D
-            </button>
-          </div>
+        <div style={{ marginBottom: 24 }}>
+          <h2
+            style={{
+              fontSize: 24,
+              fontWeight: 500,
+              lineHeight: 1.6,
+              letterSpacing: 0.2,
+              color: colors.ink,
+              marginBottom: 4
+            }}
+          >
+            Playground
+          </h2>
+          <p style={{ fontSize: 14, lineHeight: 1.6, color: colors.mute }}>
+            Click a segment or a bar. Selected:{' '}
+            <span style={{ color: colors.onDark, fontWeight: 500 }}>{selected}</span>
+          </p>
         </div>
 
         <div style={panelStyle}>
           <div style={chartCardStyle}>
             <div style={headerStyle}>
-              <span>
-                {tab === 'pie' ? 'PieChart3D — donut' : 'BarChart3D — rounded bars'}
-              </span>
+              <div style={tabBarStyle}>
+                <button type="button" style={tabStyle(tab === 'pie')} onClick={() => switchTab('pie')}>
+                  PieChart3D
+                </button>
+                <button type="button" style={tabStyle(tab === 'bar')} onClick={() => switchTab('bar')}>
+                  BarChart3D
+                </button>
+              </div>
               <label
                 style={{
                   display: 'flex',
