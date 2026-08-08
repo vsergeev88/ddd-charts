@@ -585,13 +585,13 @@ const MATERIAL_PRESETS: MaterialPreset[] = [
   {
     id: 'neon',
     label: 'Neon',
-    color: '#22d3ee',
+    color: '#0891b2',
     material: {
-      metallic: 0.2,
-      roughness: 0.25,
+      metallic: 0.05,
+      roughness: 0.35,
       emissive: '#22d3ee',
-      emissiveIntensity: 2.2,
-      envMapIntensity: 0.8
+      emissiveIntensity: 3.5,
+      envMapIntensity: 0.25
     }
   }
 ]
@@ -1009,6 +1009,7 @@ export function App() {
   const data = tab === 'pie' ? pieData : barData
   const activeIndex = tab === 'pie' ? pieActive : barActive
   const editingDatum = editIndex != null ? data[editIndex] : null
+  const bloom = data.some((datum) => (datum.material?.emissiveIntensity ?? 0) >= 1)
 
   const setActive = (index: number | null) => {
     if (tab === 'pie') setPieActive(index)
@@ -1116,6 +1117,8 @@ export function App() {
                 camera={{ position: [4.5, 4, 6], fov: 42 }}
                 autoRotate={autoRotate ? { speed: 0.12 } : false}
                 environment={environment}
+                bloom={bloom}
+                background="#0b0d1a"
               >
                 <PieChart3D
                   data={pieData}
@@ -1133,6 +1136,8 @@ export function App() {
                 camera={{ position: [6, 5, 9], fov: 40, target: [0, 1.2, 0] }}
                 autoRotate={autoRotate ? { speed: 0.25 } : false}
                 environment={environment}
+                bloom={bloom}
+                background="#0b0d1a"
               >
                 <BarChart3D
                   data={barData}

@@ -113,12 +113,14 @@ const data = [
 | `thickness` | `number` | `0.5` | refraction volume thickness |
 | `ior` | `number` | `1.5` | index of refraction |
 | `opacity` | `number` | `1` | alpha (auto-enables transparency) |
-| `emissive` / `emissiveIntensity` | `string` / `number` | `#000` / `0` | self-illumination |
+| `emissive` / `emissiveIntensity` | `string` / `number` | `#000` / `0` | self-illumination (HDR when intensity > 0) |
 | `clearcoat` / `clearcoatRoughness` | `number` | `0` / `0.1` | lacquer layer |
 | `envMapIntensity` | `number` | `1` (`1.5` for glass) | environment reflections strength |
 | `flatShading` | `boolean` | `false` | faceted look |
 
 > Glass materials look their best with an environment map — `ChartViewer` enables the `city` preset by default.
+>
+> Neon / glow materials need `ChartViewer` `bloom` enabled and `emissiveIntensity >= 1` (that unlocks HDR / non-tone-mapped output for the bloom pass). Prefer a darker base `color`, strong `emissive`, and a dark `background`. Soft hover emissive stays below that threshold and will not bloom.
 
 ## ChartViewer
 
@@ -131,6 +133,7 @@ const data = [
   lighting={{ ambientIntensity: 0.4, directionalIntensity: 1.6 }}
   shadows
   contactShadows={{ opacity: 0.5, blur: 2 }}
+  bloom
   background="#0b0d1a"
 >
   <PieChart3D data={data} />
@@ -146,6 +149,7 @@ const data = [
 | `lighting` | `LightingConfig \| false` | soft key + fill | ambient and directional lights |
 | `shadows` | `boolean` | `true` | shadow map rendering |
 | `contactShadows` | `boolean \| config` | `true` | soft blob shadow under the chart |
+| `bloom` | `boolean \| BloomConfig` | `false` | post-process bloom for HDR emissive / neon materials |
 | `background` | `string` | transparent | canvas clear color |
 | `canvasProps` | `CanvasProps` | — | escape hatch to the underlying R3F `<Canvas>` |
 

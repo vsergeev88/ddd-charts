@@ -135,6 +135,11 @@ export interface LightingConfig {
   castShadow?: boolean
 }
 
+export interface InnerGlowConfig {
+  color: string
+  intensity: number
+}
+
 export type EnvironmentPreset =
   | 'apartment'
   | 'city'
@@ -155,6 +160,17 @@ export interface ContactShadowsConfig {
   position?: Vec3
 }
 
+export interface BloomConfig {
+  intensity?: number
+  luminanceThreshold?: number
+  luminanceSmoothing?: number
+  mipmapBlur?: boolean
+  levels?: number
+  radius?: number
+}
+
+export type BloomProp = boolean | BloomConfig
+
 export interface ChartViewerProps {
   children: ReactNode
   camera?: CameraConfig
@@ -164,6 +180,7 @@ export interface ChartViewerProps {
   lighting?: LightingConfig | false
   shadows?: boolean
   contactShadows?: boolean | ContactShadowsConfig
+  bloom?: BloomProp
   background?: string
   className?: string
   style?: CSSProperties

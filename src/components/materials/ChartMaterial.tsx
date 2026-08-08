@@ -18,6 +18,7 @@ export const ChartMaterial = memo(function ChartMaterial({
   const emissiveIntensity = hovered
     ? Math.max(config.emissiveIntensity, hoverEmissiveIntensity)
     : config.emissiveIntensity
+  const hdrGlow = config.emissiveIntensity >= 1
 
   return (
     <meshPhysicalMaterial
@@ -31,6 +32,7 @@ export const ChartMaterial = memo(function ChartMaterial({
       transparent={config.glassEffect || config.opacity < 1}
       emissive={emissive}
       emissiveIntensity={emissiveIntensity}
+      toneMapped={!hdrGlow}
       clearcoat={config.clearcoat}
       clearcoatRoughness={config.clearcoatRoughness}
       envMapIntensity={config.envMapIntensity}

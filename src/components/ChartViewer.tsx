@@ -1,8 +1,11 @@
 import { Suspense, useMemo, useRef, type ReactNode } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { ContactShadows, Environment, OrbitControls } from '@react-three/drei'
+import { Bloom, EffectComposer } from '@react-three/postprocessing'
 import type { Group } from 'three'
 import type {
+  BloomConfig,
+  BloomProp,
   ChartViewerProps,
   ContactShadowsConfig,
   EnvironmentPreset,
@@ -10,6 +13,28 @@ import type {
   Vec3
 } from '../types'
 import { resolveAutoRotate, resolveControls, type ResolvedAutoRotate } from '../utils/normalize'
+
+const DEFAULT_BLOOM: Required<BloomConfig> = {
+  intensity: 1.1,
+  luminanceThreshold: 1.5,
+  luminanceSmoothing: 0.25,
+  mipmapBlur: true,
+  levels: 5,
+  radius: 0.65
+}
+
+function resolveBloom(bloom: BloomProp | undefined): Required<BloomConfig> | false {
+  if (!bloom) return false
+  if (bloom === true) return DEFAULT_BLOOM
+  return {
+    intensity: bloom.intensity ?? DEFAULT_BLOOM.intensity,
+    luminanceThreshold: bloom.luminanceThreshold ?? DEFAULT_BLOOM.luminanceThreshold,
+    luminanceSmoothing: bloom.luminanceSmoothing ?? DEFAULT_BLOOM.luminanceSmoothing,
+    mipmapBlur: bloom.mipmapBlur ?? DEFAULT_BLOOM.mipmapBlur,
+    levels: bloom.levels ?? DEFAULT_BLOOM.levels,
+    radius: bloom.radius ?? DEFAULT_BLOOM.radius
+  }
+}
 
 interface AutoRotateGroupProps {
   autoRotate: ResolvedAutoRotate
@@ -66,6 +91,7 @@ export interface ChartStageProps {
   lighting?: LightingConfig | false
   shadows?: boolean
   contactShadows?: boolean | ContactShadowsConfig
+  bloom?: BloomProp
   target?: Vec3
 }
 
@@ -77,10 +103,12 @@ export function ChartStage({
   lighting,
   shadows = true,
   contactShadows = true,
+  bloom,
   target = [0, 0, 0]
 }: ChartStageProps) {
   const rotate = resolveAutoRotate(autoRotate)
   const orbit = resolveControls(controls)
+  const bloomSettings = resolveBloom(bloom)
   const shadowConfig: ContactShadowsConfig =
     typeof contactShadows === 'object' ? contactShadows : {}
 
@@ -117,6 +145,18 @@ export function ChartStage({
           makeDefault
         />
       )}
+      {bloomSettings && (
+        <EffectComposer>
+          <Bloom
+            intensity={bloomSettings.intensity}
+            luminanceThreshold={bloomSettings.luminanceThreshold}
+            luminanceSmoothing={bloomSettings.luminanceSmoothing}
+            mipmapBlur={bloomSettings.mipmapBlur}
+            levels={bloomSettings.levels}
+            radius={bloomSettings.radius}
+          />
+        </EffectComposer>
+      )}
     </>
   )
 }
@@ -130,6 +170,7 @@ export function ChartViewer({
   lighting,
   shadows = true,
   contactShadows = true,
+  bloom,
   background,
   className,
   style,
@@ -163,6 +204,7 @@ export function ChartViewer({
         lighting={lighting}
         shadows={shadows}
         contactShadows={contactShadows}
+        bloom={bloom}
         target={camera?.target}
       >
         {children}
