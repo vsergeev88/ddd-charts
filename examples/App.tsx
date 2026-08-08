@@ -12,6 +12,11 @@ import {
 
 type TabId = 'pie' | 'bar'
 
+const GITHUB_URL = 'https://github.com/vsergeev88/ddd-charts'
+const INSTALL_COMMAND = 'npm i ddd-charts'
+const AUTHOR_NAME = 'Valentin Sergeev'
+const AUTHOR_EMAIL = 'vsergeev88@gmail.com'
+
 const ENVIRONMENT_PRESETS: EnvironmentPreset[] = [
   'apartment',
   'city',
@@ -25,33 +30,58 @@ const ENVIRONMENT_PRESETS: EnvironmentPreset[] = [
   'warehouse'
 ]
 
+const colors = {
+  primary: '#ffffff',
+  primaryPressed: '#e8e8e8',
+  onPrimary: '#000000',
+  ink: '#f4f4f6',
+  body: '#cdcdcd',
+  charcoal: '#d3d3d4',
+  mute: '#9c9c9d',
+  ash: '#6a6b6c',
+  stone: '#434345',
+  onDark: '#ffffff',
+  onDarkMute: 'rgba(255,255,255,0.72)',
+  canvas: '#07080a',
+  surface: '#0d0d0d',
+  surfaceElevated: '#101111',
+  surfaceCard: '#121212',
+  hairline: '#242728',
+  hairlineSoft: 'rgba(255,255,255,0.08)',
+  hairlineStrong: 'rgba(255,255,255,0.16)',
+  accentBlue: '#57c1ff',
+  accentRed: '#ff6161',
+  accentGreen: '#59d499',
+  accentYellow: '#ffc533'
+} as const
+
 const initialPieData: ChartDatum[] = [
   {
     id: 'design',
     label: 'Design',
     value: 28,
-    color: '#6366f1',
+    color: colors.accentBlue,
     material: { metallic: 0.85, roughness: 0.25, clearcoat: 1 }
   },
   {
     id: 'dev',
     label: 'Development',
     value: 42,
-    color: '#22d3ee',
+    color: colors.accentYellow,
     material: { metallic: 0.7, roughness: 0.3, clearcoat: 0.8 }
   },
   {
     id: 'qa',
     label: 'QA',
     value: 14,
-    color: '#f472b6',
+    color: colors.accentRed,
     material: { metallic: 0.6, roughness: 0.35, clearcoat: 0.6 }
   },
   {
     id: 'ops',
     label: 'Ops',
     value: 16,
-    color: '#34d399',
+    color: colors.accentGreen,
     material: { glassEffect: true, thickness: 0.8, roughness: 0.08 }
   }
 ]
@@ -61,72 +91,168 @@ const initialBarData: ChartDatum[] = [
     id: 'jan',
     label: 'Jan',
     value: 42,
-    color: '#6366f1',
+    color: colors.accentBlue,
     material: { metallic: 0.8, roughness: 0.326 }
   },
   {
     id: 'feb',
     label: 'Feb',
     value: 61,
-    color: '#22d3ee',
+    color: colors.accentYellow,
     material: { metallic: 0.8, roughness: 0.383 }
   },
   {
     id: 'mar',
     label: 'Mar',
     value: 35,
-    color: '#f472b6',
+    color: colors.accentRed,
     material: { metallic: 0.8, roughness: 0.305 }
   },
   {
     id: 'apr',
     label: 'Apr',
     value: 78,
-    color: '#34d399',
+    color: colors.accentGreen,
     material: { metallic: 0.8, roughness: 0.434 }
   },
   {
     id: 'may',
     label: 'May',
     value: 55,
-    color: '#fbbf24',
+    color: '#ffc533',
     material: { metallic: 0.8, roughness: 0.365 }
   },
   {
     id: 'jun',
     label: 'Jun',
     value: 91,
-    color: '#7dd3fc',
+    color: '#57c1ff',
     material: { glassEffect: true, thickness: 0.8, roughness: 0.08 }
   }
 ]
 
 const shellStyle: CSSProperties = {
-  maxWidth: 1280,
+  minHeight: '100%',
+  background: colors.canvas,
+  color: colors.body
+}
+
+const contentStyle: CSSProperties = {
+  maxWidth: 1240,
   margin: '0 auto',
-  padding: '48px 24px'
+  padding: '0 24px'
+}
+
+const navStyle: CSSProperties = {
+  height: 56,
+  borderBottom: `1px solid ${colors.hairline}`,
+  background: colors.canvas,
+  display: 'flex',
+  alignItems: 'center'
+}
+
+const navInnerStyle: CSSProperties = {
+  ...contentStyle,
+  width: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 16
+}
+
+const brandMarkStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 500,
+  lineHeight: 1.6,
+  letterSpacing: 0.2,
+  color: colors.onDark,
+  textDecoration: 'none'
+}
+
+const navLinkStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 500,
+  lineHeight: 1.6,
+  letterSpacing: 0.2,
+  color: colors.onDark,
+  textDecoration: 'none'
+}
+
+const heroStyle: CSSProperties = {
+  position: 'relative',
+  overflow: 'hidden',
+  padding: '96px 0 72px',
+  borderBottom: `1px solid ${colors.hairline}`
+}
+
+const heroStripeStyle: CSSProperties = {
+  position: 'absolute',
+  inset: '0 0 auto 0',
+  height: '55%',
+  pointerEvents: 'none',
+  opacity: 0.9
+}
+
+const installBoxStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
+  marginTop: 24,
+  padding: '10px 12px 10px 16px',
+  borderRadius: 10,
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surface,
+  maxWidth: 520
+}
+
+const installCodeStyle: CSSProperties = {
+  flex: '1 1 auto',
+  margin: 0,
+  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+  fontSize: 14,
+  color: colors.ink,
+  letterSpacing: 0.2
+}
+
+const keycapStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  height: 20,
+  padding: '1px 6px',
+  borderRadius: 4,
+  background: `linear-gradient(180deg, ${colors.surfaceCard} 0%, ${colors.surface} 100%)`,
+  border: `1px solid ${colors.hairline}`,
+  color: colors.body,
+  fontSize: 13,
+  lineHeight: 1.4,
+  letterSpacing: 0.1
 }
 
 const tabBarStyle: CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  marginBottom: 20
+  display: 'inline-flex',
+  gap: 4,
+  padding: 4,
+  borderRadius: 999,
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surface
 }
 
 const tabStyle = (active: boolean): CSSProperties => ({
-  padding: '10px 18px',
-  borderRadius: 10,
-  border: active ? '1px solid rgba(255,255,255,0.18)' : '1px solid transparent',
-  background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
-  color: active ? '#e7e9f4' : '#8b91b5',
+  padding: '4px 10px',
+  borderRadius: 999,
+  border: 'none',
+  background: active ? colors.surfaceElevated : 'transparent',
+  color: active ? colors.onDark : colors.body,
   cursor: 'pointer',
   fontSize: 14,
-  fontWeight: 600
+  fontWeight: 400,
+  lineHeight: 1.6
 })
 
 const panelStyle: CSSProperties = {
   display: 'flex',
-  gap: 24,
+  gap: 16,
   alignItems: 'stretch',
   flexWrap: 'wrap'
 }
@@ -135,10 +261,10 @@ const chartCardStyle: CSSProperties = {
   flex: '1 1 420px',
   minWidth: 360,
   height: 520,
-  borderRadius: 20,
+  borderRadius: 16,
   overflow: 'hidden',
-  border: '1px solid rgba(255,255,255,0.08)',
-  background: 'rgba(255,255,255,0.03)',
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surface,
   display: 'flex',
   flexDirection: 'column'
 }
@@ -146,35 +272,38 @@ const chartCardStyle: CSSProperties = {
 const tableCardStyle: CSSProperties = {
   flex: '1 1 360px',
   minWidth: 320,
-  borderRadius: 20,
-  border: '1px solid rgba(255,255,255,0.08)',
-  background: 'rgba(255,255,255,0.03)',
-  padding: 20,
-  overflow: 'auto',
-  height: '520px',
+  height: 520,
+  borderRadius: 10,
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surface,
+  padding: 24,
+  overflow: 'auto'
 }
 
 const headerStyle: CSSProperties = {
-  padding: '16px 20px',
-  fontSize: 15,
-  fontWeight: 600,
-  letterSpacing: 0.3,
-  color: '#c3c8e6',
-  borderBottom: '1px solid rgba(255,255,255,0.06)',
+  padding: '14px 16px',
+  fontSize: 14,
+  fontWeight: 500,
+  letterSpacing: 0.2,
+  color: colors.ink,
+  borderBottom: `1px solid ${colors.hairline}`,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
-  gap: 12
+  gap: 12,
+  flexWrap: 'wrap',
+  background: colors.surfaceElevated
 }
 
 const selectStyle: CSSProperties = {
-  padding: '6px 10px',
+  padding: '8px 12px',
+  height: 36,
   borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.14)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e7e9f4',
-  fontSize: 13,
-  fontWeight: 500,
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surfaceElevated,
+  color: colors.onDark,
+  fontSize: 14,
+  fontWeight: 400,
   cursor: 'pointer',
   fontFamily: 'inherit'
 }
@@ -279,10 +408,9 @@ function DarkSelect({
                 margin: 0,
                 padding: 4,
                 listStyle: 'none',
-                borderRadius: 8,
-                border: '1px solid rgba(255,255,255,0.14)',
-                background: '#15182b',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+                borderRadius: 10,
+                border: `1px solid ${colors.hairline}`,
+                background: colors.surface,
                 maxHeight: 240,
                 overflow: 'auto'
               }}
@@ -302,17 +430,13 @@ function DarkSelect({
                       onMouseLeave={() => setHovered(null)}
                       style={{
                         width: '100%',
-                        padding: '8px 10px',
+                        padding: '6px 10px',
                         border: 'none',
                         borderRadius: 6,
-                        background: active
-                          ? '#4f46e5'
-                          : isHovered
-                            ? 'rgba(255,255,255,0.08)'
-                            : 'transparent',
-                        color: '#e7e9f4',
-                        fontSize: 13,
-                        fontWeight: 500,
+                        background: active || isHovered ? colors.surfaceCard : 'transparent',
+                        color: colors.onDark,
+                        fontSize: 14,
+                        fontWeight: 400,
                         fontFamily: 'inherit',
                         textAlign: 'left',
                         cursor: 'pointer'
@@ -340,32 +464,44 @@ const tableStyle: CSSProperties = {
 const thStyle: CSSProperties = {
   textAlign: 'left',
   padding: '10px 8px',
-  color: '#8b91b5',
-  fontWeight: 600,
-  borderBottom: '1px solid rgba(255,255,255,0.08)'
+  color: colors.mute,
+  fontWeight: 500,
+  fontSize: 14,
+  letterSpacing: 0.2,
+  borderBottom: `1px solid ${colors.hairline}`
 }
 
 const tdStyle: CSSProperties = {
   padding: '12px 8px',
-  borderBottom: '1px solid rgba(255,255,255,0.05)',
-  color: '#e7e9f4',
+  borderBottom: `1px solid ${colors.hairlineSoft}`,
+  color: colors.ink,
   verticalAlign: 'middle'
 }
 
 const buttonStyle: CSSProperties = {
-  padding: '7px 12px',
+  padding: '8px 16px',
+  height: 36,
   borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.14)',
-  background: 'rgba(255,255,255,0.06)',
-  color: '#e7e9f4',
+  border: 'none',
+  background: colors.surfaceElevated,
+  color: colors.onDark,
   cursor: 'pointer',
-  fontSize: 13
+  fontSize: 14,
+  fontWeight: 500,
+  letterSpacing: 0.2,
+  lineHeight: 1.6
 }
 
 const primaryButtonStyle: CSSProperties = {
   ...buttonStyle,
-  background: '#4f46e5',
-  border: '1px solid #6366f1'
+  background: colors.primary,
+  color: colors.onPrimary
+}
+
+const secondaryButtonStyle: CSSProperties = {
+  ...buttonStyle,
+  background: 'transparent',
+  border: `1px solid ${colors.hairlineStrong}`
 }
 
 const fieldStyle: CSSProperties = {
@@ -377,17 +513,21 @@ const fieldStyle: CSSProperties = {
 
 const labelStyle: CSSProperties = {
   fontSize: 12,
-  color: '#8b91b5',
-  fontWeight: 600
+  color: colors.mute,
+  fontWeight: 400,
+  letterSpacing: 0.4,
+  lineHeight: 1.5
 }
 
 const inputStyle: CSSProperties = {
-  padding: '9px 11px',
+  padding: '8px 12px',
+  height: 36,
   borderRadius: 8,
-  border: '1px solid rgba(255,255,255,0.12)',
-  background: 'rgba(255,255,255,0.04)',
-  color: '#e7e9f4',
-  fontSize: 14
+  border: `1px solid ${colors.hairline}`,
+  background: colors.surfaceElevated,
+  color: colors.onDark,
+  fontSize: 16,
+  lineHeight: 1.6
 }
 
 const gridStyle: CSSProperties = {
@@ -599,7 +739,7 @@ const MATERIAL_PRESETS: MaterialPreset[] = [
 function toDraft(datum: Pick<ChartDatum, 'color' | 'material'>): MaterialDraft {
   const m = datum.material ?? {}
   return {
-    color: datum.color ?? '#6366f1',
+    color: datum.color ?? colors.accentBlue,
     metallic: m.metallic?.toString() ?? '',
     roughness: m.roughness?.toString() ?? '',
     glassEffect: Boolean(m.glassEffect),
@@ -672,7 +812,7 @@ function resolvePresetId(datum: Pick<ChartDatum, 'color' | 'material'>): string 
 
 const rangeStyle: CSSProperties = {
   width: '100%',
-  accentColor: '#6366f1',
+  accentColor: colors.primary,
   cursor: 'pointer'
 }
 
@@ -760,15 +900,24 @@ function MaterialEditor({ datum, onChange, onCancel, onOk }: MaterialEditorProps
     <div style={tableCardStyle}>
       <button
         type="button"
-        style={{ ...buttonStyle, marginBottom: 14 }}
+        style={{ ...secondaryButtonStyle, marginBottom: 14 }}
         onClick={onOk}
       >
         ← Back to table
       </button>
-      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6, color: '#c3c8e6' }}>
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 500,
+          marginBottom: 6,
+          color: colors.ink,
+          letterSpacing: 0.2,
+          lineHeight: 1.4
+        }}
+      >
         Material — {datum.label ?? datum.id}
       </div>
-      <p style={{ color: '#8b91b5', fontSize: 13, marginBottom: 18 }}>
+      <p style={{ color: colors.mute, fontSize: 13, marginBottom: 18, lineHeight: 1.4 }}>
         Changes apply to the chart immediately. Cancel restores the previous values.
       </p>
 
@@ -805,7 +954,7 @@ function MaterialEditor({ datum, onChange, onCancel, onOk }: MaterialEditorProps
           checked={draft.glassEffect}
           onChange={(e) => update('glassEffect', e.target.checked)}
         />
-        <span style={{ ...labelStyle, color: '#c3c8e6' }}>glassEffect</span>
+        <span style={{ ...labelStyle, color: colors.charcoal }}>glassEffect</span>
       </label>
 
       <div style={gridStyle}>
@@ -906,12 +1055,12 @@ function MaterialEditor({ datum, onChange, onCancel, onOk }: MaterialEditorProps
             checked={draft.flatShading}
             onChange={(e) => update('flatShading', e.target.checked)}
           />
-          <span style={{ ...labelStyle, color: '#c3c8e6' }}>flatShading</span>
+          <span style={{ ...labelStyle, color: colors.charcoal }}>flatShading</span>
         </label>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 8 }}>
-        <button type="button" style={buttonStyle} onClick={onCancel}>
+        <button type="button" style={secondaryButtonStyle} onClick={onCancel}>
           Cancel
         </button>
         <button type="button" style={primaryButtonStyle} onClick={onOk}>
@@ -933,7 +1082,16 @@ interface DataTableProps {
 function DataTable({ data, activeIndex, onEdit, onRowOver, onRowOut }: DataTableProps) {
   return (
     <div style={tableCardStyle}>
-      <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 14, color: '#c3c8e6' }}>
+      <div
+        style={{
+          fontSize: 18,
+          fontWeight: 500,
+          marginBottom: 14,
+          color: colors.ink,
+          letterSpacing: 0.2,
+          lineHeight: 1.4
+        }}
+      >
         Chart data
       </div>
       <table style={tableStyle}>
@@ -953,8 +1111,7 @@ function DataTable({ data, activeIndex, onEdit, onRowOver, onRowOut }: DataTable
               onMouseEnter={() => onRowOver(index)}
               onMouseLeave={onRowOut}
               style={{
-                background:
-                  activeIndex === index ? 'rgba(99, 102, 241, 0.12)' : 'transparent'
+                background: activeIndex === index ? colors.surfaceCard : 'transparent'
               }}
             >
               <td style={tdStyle}>
@@ -964,14 +1121,14 @@ function DataTable({ data, activeIndex, onEdit, onRowOver, onRowOut }: DataTable
                     width: 16,
                     height: 16,
                     borderRadius: 4,
-                    background: datum.color ?? '#6366f1',
-                    border: '1px solid rgba(255,255,255,0.2)'
+                    background: datum.color ?? colors.accentBlue,
+                    border: `1px solid ${colors.hairlineStrong}`
                   }}
                 />
               </td>
               <td style={tdStyle}>{datum.label ?? datum.id}</td>
               <td style={tdStyle}>{datum.value}</td>
-              <td style={{ ...tdStyle, color: '#a7adcc', fontSize: 13 }}>
+              <td style={{ ...tdStyle, color: colors.mute, fontSize: 13 }}>
                 {materialSummary(datum)}
               </td>
               <td style={tdStyle}>
@@ -992,6 +1149,35 @@ function cloneDatum(datum: ChartDatum): ChartDatum {
     ...datum,
     material: datum.material ? { ...datum.material } : undefined
   }
+}
+
+function InstallCommand() {
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(INSTALL_COMMAND)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1600)
+    } catch {
+      setCopied(false)
+    }
+  }
+
+  return (
+    <div style={installBoxStyle}>
+      <span style={keycapStyle}>⌘</span>
+      <code style={installCodeStyle}>{INSTALL_COMMAND}</code>
+      <button
+        type="button"
+        style={{ ...primaryButtonStyle, minWidth: 88, height: 32, padding: '6px 14px' }}
+        onClick={() => void copy()}
+        aria-label="Copy install command"
+      >
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    </div>
+  )
 }
 
 export function App() {
@@ -1066,120 +1252,282 @@ export function App() {
 
   return (
     <div style={shellStyle}>
-      <h1 style={{ fontSize: 34, marginBottom: 8 }}>ddd-charts</h1>
-      <p style={{ color: '#8b91b5', marginBottom: 24 }}>
-        Highly customizable 3D charts for React. Click a segment or a bar — selected:{' '}
-        <strong style={{ color: '#e7e9f4' }}>{selected}</strong>
-      </p>
-
-      <div style={{ display: 'flex', gap: 20, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-        <div style={tabBarStyle}>
-          <button type="button" style={tabStyle(tab === 'pie')} onClick={() => switchTab('pie')}>
-            PieChart3D
-          </button>
-          <button type="button" style={tabStyle(tab === 'bar')} onClick={() => switchTab('bar')}>
-            BarChart3D
-          </button>
-        </div>
-      </div>
-
-      <div style={panelStyle}>
-        <div style={chartCardStyle}>
-          <div style={headerStyle}>
-            <span>
-              {tab === 'pie' ? 'PieChart3D — donut' : 'BarChart3D — rounded bars'}
-            </span>
-            <label style={{ display: 'flex', gap: 8, alignItems: 'center', cursor: 'pointer' }}>
-              <input
-                type="checkbox"
-                checked={autoRotate}
-                onChange={(e) => setAutoRotate(e.target.checked)}
-              />
-              Auto-rotate
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
-              <span style={{ fontSize: 12, color: '#8b91b5' }}>Environment</span>
-              <DarkSelect
-                aria-label="Environment"
-                value={environment}
-                onChange={(next) => setEnvironment(next as EnvironmentPreset)}
-                options={ENVIRONMENT_PRESETS.map((preset) => ({
-                  value: preset,
-                  label: preset
-                }))}
-                style={{ width: 120 }}
-              />
-            </label>
+      <header style={navStyle}>
+        <div style={navInnerStyle}>
+          <a href="#top" style={brandMarkStyle}>
+            ddd-charts
+          </a>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer" style={navLinkStyle}>
+              GitHub
+            </a>
+            <a
+              href={`mailto:${AUTHOR_EMAIL}`}
+              style={{ ...navLinkStyle, color: colors.onDarkMute }}
+            >
+              Contact
+            </a>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                ...secondaryButtonStyle,
+                display: 'inline-flex',
+                alignItems: 'center',
+                textDecoration: 'none'
+              }}
+            >
+              View on GitHub
+            </a>
           </div>
-          <div style={{ flex: 1 }}>
-            {tab === 'pie' ? (
-              <ChartViewer
-                camera={{ position: [4.5, 4, 6], fov: 42 }}
-                autoRotate={autoRotate ? { speed: 0.12 } : false}
-                environment={environment}
-                bloom={bloom}
-                background="#0b0d1a"
-              >
-                <PieChart3D
-                  data={pieData}
-                  innerRadius={0.9}
-                  outerRadius={2.1}
-                  height={0.7}
-                  highlightedIndex={pieActive}
-                  onItemClick={handleItemClick}
-                  onItemPointerOver={(_, i) => setPieActive(i)}
-                  onItemPointerOut={() => setPieActive(null)}
-                />
-              </ChartViewer>
-            ) : (
-              <ChartViewer
-                camera={{ position: [6, 5, 9], fov: 40, target: [0, 1.2, 0] }}
-                autoRotate={autoRotate ? { speed: 0.25 } : false}
-                environment={environment}
-                bloom={bloom}
-                background="#0b0d1a"
-              >
-                <BarChart3D
-                  data={barData}
-                  maxBarHeight={3.2}
-                  hover={{ scale: 1.1, emissiveIntensity: 0.35 }}
-                  tooltip={{ showPercent: false }}
-                  highlightedIndex={barActive}
-                  onItemClick={handleItemClick}
-                  onItemPointerOver={(_, i) => setBarActive(i)}
-                  onItemPointerOut={() => setBarActive(null)}
-                />
-              </ChartViewer>
-            )}
+        </div>
+      </header>
+
+      <section id="top" style={heroStyle}>
+        <div className="hero-stripes" style={heroStripeStyle} aria-hidden />
+        <div style={{ ...contentStyle, position: 'relative', maxWidth: 720 }}>
+          <h1
+            className="hero-animate"
+            style={{
+              fontSize: 'clamp(36px, 6vw, 64px)',
+              fontWeight: 600,
+              lineHeight: 1.1,
+              letterSpacing: 0,
+              color: colors.ink,
+              marginBottom: 16
+            }}
+          >
+            ddd-charts
+          </h1>
+          <p
+            className="hero-animate-delay"
+            style={{
+              fontSize: 18,
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: colors.body,
+              maxWidth: 560,
+              marginBottom: 0
+            }}
+          >
+            Highly customizable 3D charts for React — pie, donut, and bars on three.js with
+            physically-based materials.
+          </p>
+          <div className="hero-animate-delay">
+            <InstallCommand />
           </div>
-          <ChartLegend
-            items={data}
-            activeIndex={activeIndex}
-            onItemClick={handleItemClick}
-            onItemOver={(_, i) => setActive(i)}
-            onItemOut={() => setActive(null)}
-            style={{ padding: '14px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}
-          />
+        </div>
+      </section>
+
+      <main style={{ ...contentStyle, paddingTop: 96, paddingBottom: 96 }} className="panel-animate">
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            marginBottom: 24
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontSize: 24,
+                fontWeight: 500,
+                lineHeight: 1.6,
+                letterSpacing: 0.2,
+                color: colors.ink,
+                marginBottom: 4
+              }}
+            >
+              Playground
+            </h2>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: colors.mute }}>
+              Click a segment or a bar. Selected:{' '}
+              <span style={{ color: colors.onDark, fontWeight: 500 }}>{selected}</span>
+            </p>
+          </div>
+          <div style={tabBarStyle}>
+            <button type="button" style={tabStyle(tab === 'pie')} onClick={() => switchTab('pie')}>
+              PieChart3D
+            </button>
+            <button type="button" style={tabStyle(tab === 'bar')} onClick={() => switchTab('bar')}>
+              BarChart3D
+            </button>
+          </div>
         </div>
 
-        {editingDatum && editIndex != null && editSnapshot ? (
-          <MaterialEditor
-            key={`${tab}-${editIndex}`}
-            datum={editSnapshot}
-            onChange={(next) => updateDatumAt(editIndex, next)}
-            onCancel={cancelEdit}
-            onOk={closeEdit}
-          />
-        ) : (
-          <DataTable
-            data={data}
-            activeIndex={activeIndex}
-            onEdit={startEdit}
-            onRowOver={setActive}
-            onRowOut={() => setActive(null)}
-          />
-        )}
-      </div>
+        <div style={panelStyle}>
+          <div style={chartCardStyle}>
+            <div style={headerStyle}>
+              <span>
+                {tab === 'pie' ? 'PieChart3D — donut' : 'BarChart3D — rounded bars'}
+              </span>
+              <label
+                style={{
+                  display: 'flex',
+                  gap: 8,
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  color: colors.body,
+                  fontSize: 14,
+                  fontWeight: 400
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={autoRotate}
+                  onChange={(e) => setAutoRotate(e.target.checked)}
+                />
+                Auto-rotate
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 12, color: colors.mute, letterSpacing: 0.4 }}>
+                  Environment
+                </span>
+                <DarkSelect
+                  aria-label="Environment"
+                  value={environment}
+                  onChange={(next) => setEnvironment(next as EnvironmentPreset)}
+                  options={ENVIRONMENT_PRESETS.map((preset) => ({
+                    value: preset,
+                    label: preset
+                  }))}
+                  style={{ width: 120 }}
+                />
+              </label>
+            </div>
+            <div style={{ flex: 1 }}>
+              {tab === 'pie' ? (
+                <ChartViewer
+                  camera={{ position: [4.5, 4, 6], fov: 42 }}
+                  autoRotate={autoRotate ? { speed: 0.12 } : false}
+                  environment={environment}
+                  bloom={bloom}
+                  background={colors.canvas}
+                >
+                  <PieChart3D
+                    data={pieData}
+                    innerRadius={0.9}
+                    outerRadius={2.1}
+                    height={0.7}
+                    highlightedIndex={pieActive}
+                    onItemClick={handleItemClick}
+                    onItemPointerOver={(_, i) => setPieActive(i)}
+                    onItemPointerOut={() => setPieActive(null)}
+                  />
+                </ChartViewer>
+              ) : (
+                <ChartViewer
+                  camera={{ position: [6, 5, 9], fov: 40, target: [0, 1.2, 0] }}
+                  autoRotate={autoRotate ? { speed: 0.25 } : false}
+                  environment={environment}
+                  bloom={bloom}
+                  background={colors.canvas}
+                >
+                  <BarChart3D
+                    data={barData}
+                    maxBarHeight={3.2}
+                    hover={{ scale: 1.1, emissiveIntensity: 0.35 }}
+                    tooltip={{ showPercent: false }}
+                    highlightedIndex={barActive}
+                    onItemClick={handleItemClick}
+                    onItemPointerOver={(_, i) => setBarActive(i)}
+                    onItemPointerOut={() => setBarActive(null)}
+                  />
+                </ChartViewer>
+              )}
+            </div>
+            <ChartLegend
+              items={data}
+              activeIndex={activeIndex}
+              onItemClick={handleItemClick}
+              onItemOver={(_, i) => setActive(i)}
+              onItemOut={() => setActive(null)}
+              style={{
+                padding: '14px 16px',
+                borderTop: `1px solid ${colors.hairline}`,
+                background: colors.surface
+              }}
+            />
+          </div>
+
+          {editingDatum && editIndex != null && editSnapshot ? (
+            <MaterialEditor
+              key={`${tab}-${editIndex}`}
+              datum={editSnapshot}
+              onChange={(next) => updateDatumAt(editIndex, next)}
+              onCancel={cancelEdit}
+              onOk={closeEdit}
+            />
+          ) : (
+            <DataTable
+              data={data}
+              activeIndex={activeIndex}
+              onEdit={startEdit}
+              onRowOver={setActive}
+              onRowOut={() => setActive(null)}
+            />
+          )}
+        </div>
+      </main>
+
+      <footer
+        style={{
+          borderTop: `1px solid ${colors.hairline}`,
+          background: colors.canvas,
+          padding: '64px 0'
+        }}
+      >
+        <div
+          style={{
+            ...contentStyle,
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '16px 32px',
+            justifyContent: 'space-between',
+            color: colors.mute,
+            fontSize: 14,
+            lineHeight: 1.6
+          }}
+        >
+          <div>
+            <div style={{ color: colors.onDark, fontWeight: 500, marginBottom: 8 }}>
+              ddd-charts
+            </div>
+            <div>
+              {AUTHOR_NAME} ·{' '}
+              <a
+                href={`mailto:${AUTHOR_EMAIL}`}
+                style={{ color: colors.body, textDecoration: 'none' }}
+              >
+                {AUTHOR_EMAIL}
+              </a>
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ color: colors.onDark, fontWeight: 500 }}>Links</span>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: colors.body, textDecoration: 'none' }}
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.npmjs.com/package/ddd-charts"
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: colors.body, textDecoration: 'none' }}
+            >
+              npm
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
