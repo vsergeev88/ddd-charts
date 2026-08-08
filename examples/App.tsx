@@ -17,6 +17,39 @@ const INSTALL_COMMAND = 'npm i ddd-charts'
 const AUTHOR_NAME = 'Valentin Sergeev'
 const AUTHOR_EMAIL = 'vsergeev88@gmail.com'
 
+const FEATURES = [
+  {
+    title: 'Physically-based materials',
+    description:
+      'Metal, glass, clearcoat, emissive and per-datum overrides — tune look from props without writing shaders.'
+  },
+  {
+    title: 'ChartViewer out of the box',
+    description:
+      'Camera, lights, environment maps, shadows, orbit controls and auto-rotate in one drop-in canvas.'
+  },
+  {
+    title: 'Motion that feels native',
+    description:
+      'Entrance animations with stagger and easing, plus hover explode/scale effects you can configure.'
+  },
+  {
+    title: 'Tooltips & legend sync',
+    description:
+      'HTML tooltips with custom rendering and ChartLegend with two-way hover via highlightedIndex.'
+  },
+  {
+    title: 'React + three.js stack',
+    description:
+      'Built on @react-three/fiber. PieChart3D and BarChart3D compose cleanly into any R3F scene.'
+  },
+  {
+    title: 'Typed & tree-shakable',
+    description:
+      'Full TypeScript types, ESM + CJS builds, sideEffects: false — ship only what you import. MIT licensed.'
+  }
+] as const
+
 const ENVIRONMENT_PRESETS: EnvironmentPreset[] = [
   'apartment',
   'city',
@@ -1472,6 +1505,77 @@ export function App() {
             />
           )}
         </div>
+
+        <section style={{ marginTop: 96 }}>
+          <h2
+            style={{
+              fontSize: 24,
+              fontWeight: 500,
+              lineHeight: 1.6,
+              letterSpacing: 0.2,
+              color: colors.ink,
+              marginBottom: 4
+            }}
+          >
+            Why ddd-charts
+          </h2>
+          <p
+            style={{
+              fontSize: 16,
+              fontWeight: 400,
+              lineHeight: 1.6,
+              color: colors.body,
+              maxWidth: 560,
+              marginBottom: 24
+            }}
+          >
+            Production-ready 3D charts for React — great defaults, deep customization when you need
+            it.
+          </p>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+              gap: 16
+            }}
+          >
+            {FEATURES.map((feature) => (
+              <article
+                key={feature.title}
+                style={{
+                  background: colors.surface,
+                  border: `1px solid ${colors.hairline}`,
+                  borderRadius: 10,
+                  padding: 24
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 500,
+                    lineHeight: 1.4,
+                    letterSpacing: 0.2,
+                    color: colors.ink,
+                    marginBottom: 8
+                  }}
+                >
+                  {feature.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 400,
+                    lineHeight: 1.6,
+                    color: colors.body,
+                    margin: 0
+                  }}
+                >
+                  {feature.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
       </main>
 
       <footer
