@@ -1,4 +1,5 @@
 # ddd-charts
+**[>>> LIVE DEMO <<<](https://ddd-charts.netlify.app/)**
 
 Highly customizable **3D charts for React**, built on top of [three.js](https://threejs.org/) and [@react-three/fiber](https://github.com/pmndrs/react-three-fiber).
 
@@ -14,7 +15,6 @@ Physically-based materials (metal, glass) on each datum, smooth entrance and hov
 - 🌳 Tree-shakable ESM + CJS builds, full TypeScript types
 - 🆓 MIT licensed
 
-**[Live Demo](https://ddd-charts.netlify.app/)**
 
 ## Installation
 

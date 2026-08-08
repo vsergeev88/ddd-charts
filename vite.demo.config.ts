@@ -9,5 +9,9 @@ export default defineConfig({
     alias: {
       'ddd-charts': fileURLToPath(new URL('./src/index.ts', import.meta.url))
     }
+  },
+  build: {
+    outDir: '../dist-demo',
+    emptyOutDir: true
   }
 })
